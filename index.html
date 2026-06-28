@@ -7,52 +7,81 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
 <style>
   :root{
-    --bg:#f7f7f4; --panel:#ffffff; --ink:#23221f; --muted:#6b6a64; --line:#e6e4dd;
-    --accent:#1d6e56; --accent2:#185fa5; --warn:#854f0b; --chip:#eef3ee; --code:#f1efe8;
+    --bg:#f7f7f4;--panel:#fff;--ink:#23221f;--muted:#6b6a64;--line:#e6e4dd;
+    --accent:#1d6e56;--accent2:#185fa5;--warn:#854f0b;--chip:#eef3ee;--code:#f1efe8;--fs:16px;
   }
-  @media (prefers-color-scheme: dark){
-    :root{ --bg:#1a1a18; --panel:#232320; --ink:#ececea; --muted:#a3a29c; --line:#36352f;
-      --accent:#5dcaa5; --accent2:#85b7eb; --warn:#fac76f; --chip:#2a2a26; --code:#15150f; }
-  }
+  html[data-theme="dark"], html:not([data-theme]) {}
+  @media (prefers-color-scheme: dark){ html:not([data-theme="light"]){
+    --bg:#1a1a18;--panel:#232320;--ink:#ececea;--muted:#a3a29c;--line:#36352f;
+    --accent:#5dcaa5;--accent2:#85b7eb;--warn:#fac76f;--chip:#2a2a26;--code:#15150f; } }
+  html[data-theme="dark"]{
+    --bg:#1a1a18;--panel:#232320;--ink:#ececea;--muted:#a3a29c;--line:#36352f;
+    --accent:#5dcaa5;--accent2:#85b7eb;--warn:#fac76f;--chip:#2a2a26;--code:#15150f; }
+  html[data-theme="light"]{
+    --bg:#f7f7f4;--panel:#fff;--ink:#23221f;--muted:#6b6a64;--line:#e6e4dd;
+    --accent:#1d6e56;--accent2:#185fa5;--warn:#854f0b;--chip:#eef3ee;--code:#f1efe8; }
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{background:var(--bg);color:var(--ink);
+  body{margin:0;background:var(--bg);color:var(--ink);
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
     line-height:1.75;-webkit-font-smoothing:antialiased}
-  a{color:var(--accent2);text-decoration:none}
-  a:hover{text-decoration:underline}
+  a{color:var(--accent2);text-decoration:none}a:hover{text-decoration:underline}
+  /* toolbar */
+  .tool{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;
+    background:var(--panel);border-bottom:1px solid var(--line);padding:9px 16px}
+  .tool b{font-size:15px;white-space:nowrap}
+  .hamb{display:none;font-size:22px;background:none;border:none;color:var(--ink);cursor:pointer}
+  .search{position:relative;flex:1;max-width:440px;margin-left:auto}
+  .search input{width:100%;padding:8px 12px;border:1px solid var(--line);border-radius:9px;
+    background:var(--bg);color:var(--ink);font-size:14px;font-family:inherit}
+  .results{position:absolute;top:42px;left:0;right:0;background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.16);max-height:60vh;overflow-y:auto;z-index:50;display:none}
+  .results.show{display:block}
+  .results .r{display:block;padding:10px 13px;border-bottom:1px solid var(--line);cursor:pointer;color:var(--ink)}
+  .results .r:hover{background:var(--chip);text-decoration:none}
+  .results .r b{font-size:13.5px;color:var(--accent)}
+  .results .r small{display:block;color:var(--muted);font-size:12.5px;margin-top:3px}
+  .results .r em{background:rgba(186,117,23,.25);font-style:normal;border-radius:3px;padding:0 2px}
+  .tbtn{background:none;border:1px solid var(--line);border-radius:8px;color:var(--ink);cursor:pointer;
+    padding:6px 9px;font-size:14px;font-family:inherit;white-space:nowrap}
+  .tbtn:hover{background:var(--chip)}
   /* layout */
-  .wrap{display:flex;min-height:100vh}
-  .side{width:268px;flex:none;background:var(--panel);border-right:1px solid var(--line);
-    position:sticky;top:0;height:100vh;overflow-y:auto;padding:18px 14px}
-  .brand{font-size:17px;font-weight:600;padding:6px 10px 2px}
-  .brand small{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:2px}
-  .nav{margin-top:14px;display:flex;flex-direction:column;gap:3px}
+  .wrap{display:flex}
+  .side{width:262px;flex:none;background:var(--panel);border-right:1px solid var(--line);
+    position:sticky;top:49px;height:calc(100vh - 49px);overflow-y:auto;padding:16px 12px}
+  .brand{font-size:12px;color:var(--muted);padding:4px 10px 10px}
+  .nav{display:flex;flex-direction:column;gap:3px}
   .nav a{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;color:var(--ink);font-size:14.5px}
   .nav a:hover{background:var(--chip);text-decoration:none}
   .nav a.active{background:var(--chip);font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}
   .nav .ic{font-size:16px;width:20px;text-align:center}
   .nav .ck{margin-left:auto;color:var(--accent);font-size:13px;opacity:0}
   .nav a.read .ck{opacity:1}
-  .prog{margin:14px 10px 4px;font-size:12px;color:var(--muted)}
+  .prog{margin:16px 10px 4px;font-size:12px;color:var(--muted)}
   .bar{height:6px;background:var(--chip);border-radius:99px;overflow:hidden;margin:6px 10px}
   .bar>i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
-  /* main */
-  .main{flex:1;min-width:0;display:flex;justify-content:center}
-  .content{max-width:840px;width:100%;padding:30px 30px 90px}
-  .topbar{display:none}
-  .md h1{font-size:25px;line-height:1.3;border-bottom:2px solid var(--line);padding-bottom:12px;margin-top:8px}
-  .md h2{font-size:20px;margin-top:34px;border-bottom:1px solid var(--line);padding-bottom:6px}
-  .md h3{font-size:17px;margin-top:26px}
-  .md p,.md li{font-size:15.5px}
-  .md blockquote{margin:14px 0;padding:8px 16px;border-left:4px solid var(--accent);
-    background:var(--chip);border-radius:0 8px 8px 0;color:var(--ink)}
+  .main{flex:1;min-width:0;display:flex;justify-content:center;gap:26px;padding:0 24px}
+  .content{max-width:820px;width:100%;padding:28px 6px 90px;font-size:var(--fs)}
+  .toc{width:206px;flex:none;position:sticky;top:70px;align-self:flex-start;max-height:calc(100vh-90px);
+    overflow-y:auto;padding:24px 0;font-size:13px}
+  .toc .ttl{color:var(--muted);font-size:11px;letter-spacing:.04em;margin:0 0 8px 10px}
+  .toc a{display:block;padding:4px 10px;color:var(--muted);border-left:2px solid transparent;line-height:1.4}
+  .toc a:hover{color:var(--ink);text-decoration:none}
+  .toc a.h3{padding-left:22px;font-size:12.5px}
+  .toc a.cur{color:var(--accent);border-left-color:var(--accent);font-weight:500}
+  /* markdown */
+  .md h1{font-size:25px;line-height:1.3;border-bottom:2px solid var(--line);padding-bottom:12px;margin-top:6px}
+  .md h2{font-size:20px;margin-top:34px;border-bottom:1px solid var(--line);padding-bottom:6px;scroll-margin-top:64px}
+  .md h3{font-size:17px;margin-top:26px;scroll-margin-top:64px}
+  .md p,.md li{font-size:1em}
+  .md blockquote{margin:14px 0;padding:8px 16px;border-left:4px solid var(--accent);background:var(--chip);border-radius:0 8px 8px 0}
   .md blockquote p{margin:6px 0}
-  .md code{background:var(--code);padding:2px 6px;border-radius:5px;font-size:13.5px;
-    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-  .md pre{background:var(--code);padding:14px 16px;border-radius:10px;overflow-x:auto;border:1px solid var(--line)}
-  .md pre code{background:none;padding:0;font-size:13px;line-height:1.5}
-  .md table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;display:block;overflow-x:auto}
+  .md code{background:var(--code);padding:2px 6px;border-radius:5px;font-size:.86em;font-family:ui-monospace,Menlo,Consolas,monospace}
+  .md pre{position:relative;background:var(--code);padding:14px 16px;border-radius:10px;overflow-x:auto;border:1px solid var(--line)}
+  .md pre code{background:none;padding:0;font-size:13px;line-height:1.55}
+  .copy{position:absolute;top:7px;right:7px;font-size:11px;padding:3px 8px;border:1px solid var(--line);
+    border-radius:6px;background:var(--panel);color:var(--muted);cursor:pointer;opacity:0;transition:opacity .15s}
+  .md pre:hover .copy{opacity:1}
+  .md table{border-collapse:collapse;width:100%;margin:16px 0;font-size:.9em;display:block;overflow-x:auto}
   .md th,.md td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
   .md th{background:var(--chip);font-weight:600}
   .md tr:nth-child(even) td{background:rgba(127,127,127,.04)}
@@ -65,134 +94,284 @@
   .readbtn{display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:9px 16px;border:1px solid var(--accent);
     color:var(--accent);background:var(--panel);border-radius:10px;cursor:pointer;font-size:14px;font-family:inherit}
   .readbtn.on{background:var(--accent);color:#fff}
-  .hamb{display:none}
+  /* demos */
+  .demo{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px 18px;margin:18px 0}
+  .demo h3{margin:0 0 4px;font-size:17px}
+  .demo .hint{color:var(--muted);font-size:13px;margin:0 0 14px}
+  .demo .row{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start}
+  .demo label{font-size:13px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
+  .demo input[type=number]{width:62px;padding:5px 6px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);font-size:14px}
+  .demo input[type=range]{width:160px}
+  .demo .out{background:var(--chip);border-radius:10px;padding:12px 14px;font-size:14px;line-height:1.9}
+  .demo .out b{color:var(--accent)}
+  .demo .btn{padding:7px 14px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink);cursor:pointer;font-size:13.5px;font-family:inherit}
+  .demo .btn:hover{background:var(--chip)}
+  .demo .btn.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .grid{display:inline-grid;gap:2px;background:var(--line);border:2px solid var(--line);border-radius:4px}
+  .grid .cell{width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:12px;background:var(--panel);cursor:pointer;user-select:none}
+  .grid .cell.on{background:var(--accent);color:#fff}
+  .ngrid input{width:38px;height:34px;text-align:center;border:1px solid var(--line);background:var(--panel);color:var(--ink);font-size:13px}
+  .ngrid{display:inline-grid;gap:2px}
+  .resgrid{display:inline-grid;gap:2px;background:var(--line);border:2px solid var(--line);border-radius:4px}
+  .resgrid .c{width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:12px;background:var(--panel)}
+  .resgrid .c.hot{background:var(--accent);color:#fff}
+  @media (max-width:1120px){ .toc{display:none} }
   @media (max-width:880px){
-    .side{position:fixed;left:0;top:0;z-index:30;transform:translateX(-100%);transition:transform .25s;box-shadow:0 0 40px rgba(0,0,0,.2)}
+    .side{position:fixed;left:0;top:0;height:100vh;z-index:60;transform:translateX(-100%);transition:transform .25s;box-shadow:0 0 40px rgba(0,0,0,.25)}
     .side.open{transform:translateX(0)}
-    .topbar{display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:20;
-      background:var(--panel);border-bottom:1px solid var(--line);padding:11px 16px}
-    .hamb{display:inline-flex;font-size:22px;background:none;border:none;color:var(--ink);cursor:pointer;padding:2px 6px}
-    .topbar b{font-size:15px}
-    .content{padding:20px 18px 80px}
-    .scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:25}
-    .scrim.show{display:block}
+    .hamb{display:inline-flex}
+    .main{padding:0 14px}.content{padding:18px 2px 80px}
+    .scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:55}.scrim.show{display:block}
   }
 </style>
 </head>
 <body>
-<div class="topbar">
+<div class="tool">
   <button class="hamb" id="hamb" aria-label="菜单">☰</button>
-  <b>图像处理 · 考试速成</b>
+  <b>图像处理 · 速成</b>
+  <div class="search">
+    <input id="q" type="search" placeholder="🔍 搜索公式 / 知识点 / 题…" autocomplete="off">
+    <div class="results" id="results"></div>
+  </div>
+  <button class="tbtn" id="theme" title="切换深浅色">🌓</button>
+  <button class="tbtn" id="fsm" title="缩小字号">A−</button>
+  <button class="tbtn" id="fsp" title="放大字号">A＋</button>
 </div>
 <div class="wrap">
   <aside class="side" id="side">
-    <div class="brand">图像处理 · 考试速成<small>陈俊烨的备考站 · CV / Image Processing</small></div>
+    <div class="brand">陈俊烨的备考站 · CV / Image Processing</div>
     <div class="prog">学习进度 <span id="pct">0%</span></div>
     <div class="bar"><i id="barfill"></i></div>
     <nav class="nav" id="nav"></nav>
   </aside>
   <div class="scrim" id="scrim"></div>
-  <main class="main"><article class="content md" id="content">加载中…</article></main>
+  <main class="main">
+    <article class="content md" id="content">加载中…</article>
+    <nav class="toc" id="toc"></nav>
+  </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
 <script>
-const MODULES = [
-  {id:'start',  file:'06_从这里开始_学习导航.md',     title:'从这里开始',        ic:'🚀'},
-  {id:'cheat',  file:'00_公式速记表_从零速成.md',     title:'公式速记表(从零速成)', ic:'📘'},
-  {id:'quiz',   file:'01_Quiz逐题详解.md',           title:'Quiz 逐题详解',      ic:'📝'},
-  {id:'drill',  file:'05_易混点突击题与概念精讲.md',   title:'易混点突击 + 概念精讲', ic:'⚡'},
-  {id:'extra',  file:'04_完整性补充_讲义额外考点.md',  title:'完整性补充(讲义额外)', ic:'📚'},
-  {id:'mock',   file:'02_模拟考卷.md',                title:'模拟考卷',           ic:'🧪'},
-  {id:'mockans',file:'03_模拟考卷_答案详解.md',        title:'模拟卷 · 答案详解',    ic:'✅'},
+const MODULES=[
+  {id:'start', file:'06_从这里开始_学习导航.md',    title:'从这里开始',         ic:'🚀'},
+  {id:'cheat', file:'00_公式速记表_从零速成.md',    title:'公式速记表(从零速成)',  ic:'📘'},
+  {id:'quiz',  file:'01_Quiz逐题详解.md',          title:'Quiz 逐题详解',       ic:'📝'},
+  {id:'demos', type:'demos',                       title:'互动演示(亲手算)',     ic:'🧮'},
+  {id:'drill', file:'05_易混点突击题与概念精讲.md',  title:'易混点突击 + 概念',    ic:'⚡'},
+  {id:'extra', file:'04_完整性补充_讲义额外考点.md', title:'完整性补充',          ic:'📚'},
+  {id:'mock',  file:'02_模拟考卷.md',               title:'模拟考卷',            ic:'🧪'},
+  {id:'mockans',file:'03_模拟考卷_答案详解.md',      title:'模拟卷 · 答案详解',     ic:'✅'},
 ];
-const byFile = {}; MODULES.forEach(m=>byFile[m.file]=m);
-const READ_KEY = 'ip_read_v1';
-const readSet = new Set(JSON.parse(localStorage.getItem(READ_KEY)||'[]'));
-
-function saveRead(){ localStorage.setItem(READ_KEY, JSON.stringify([...readSet])); refreshProgress(); }
-function refreshProgress(){
-  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('read', readSet.has(a.dataset.id)));
-  const pct = Math.round(readSet.size/MODULES.length*100);
-  document.getElementById('pct').textContent = pct+'%';
-  document.getElementById('barfill').style.width = pct+'%';
+const byFile={}; MODULES.forEach(m=>{if(m.file)byFile[m.file]=m;});
+const readSet=new Set(JSON.parse(localStorage.getItem('ip_read_v1')||'[]'));
+function saveRead(){localStorage.setItem('ip_read_v1',JSON.stringify([...readSet]));refreshProg();}
+function refreshProg(){
+  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('read',readSet.has(a.dataset.id)));
+  const tot=MODULES.filter(m=>m.file).length;
+  const done=[...readSet].filter(id=>MODULES.find(m=>m.id===id&&m.file)).length;
+  const pct=Math.round(done/tot*100);
+  document.getElementById('pct').textContent=pct+'%';
+  document.getElementById('barfill').style.width=pct+'%';
 }
-
 function buildNav(){
-  const nav = document.getElementById('nav');
-  nav.innerHTML='';
-  MODULES.forEach(m=>{
-    const a=document.createElement('a');
-    a.href='#'+m.id; a.dataset.id=m.id;
-    a.innerHTML=`<span class="ic">${m.ic}</span><span>${m.title}</span><span class="ck">✓</span>`;
-    nav.appendChild(a);
-  });
-  refreshProgress();
+  const nav=document.getElementById('nav');nav.innerHTML='';
+  MODULES.forEach(m=>{const a=document.createElement('a');a.href='#'+m.id;a.dataset.id=m.id;
+    a.innerHTML=`<span class="ic">${m.ic}</span><span>${m.title}</span><span class="ck">✓</span>`;nav.appendChild(a);});
+  refreshProg();
 }
-
-// ---- markdown + math rendering (protect math from marked) ----
+/* ---- theme & font ---- */
+function applyTheme(){const t=localStorage.getItem('ip_theme');if(t)document.documentElement.setAttribute('data-theme',t);else document.documentElement.removeAttribute('data-theme');}
+function applyFs(){const s=parseInt(localStorage.getItem('ip_fs')||'16');document.documentElement.style.setProperty('--fs',s+'px');}
+/* ---- markdown + math ---- */
 function renderMD(src){
-  const blocks=[];
-  src = src.replace(/\$\$([\s\S]+?)\$\$/g,(m,t)=>{blocks.push({d:true,t});return `@@M${blocks.length-1}@@`;});
-  src = src.replace(/\$([^\$\n]+?)\$/g,(m,t)=>{blocks.push({d:false,t});return `@@M${blocks.length-1}@@`;});
-  let html = marked.parse(src,{gfm:true,breaks:false});
-  html = html.replace(/@@M(\d+)@@/g,(m,i)=>{
-    const b=blocks[i];
-    try{ return katex.renderToString(b.t,{displayMode:b.d,throwOnError:false}); }
-    catch(e){ return '<code>'+b.t+'</code>'; }
-  });
-  return html;
+  const b=[];
+  src=src.replace(/\$\$([\s\S]+?)\$\$/g,(m,t)=>{b.push({d:true,t});return `@@M${b.length-1}@@`;});
+  src=src.replace(/\$([^\$\n]+?)\$/g,(m,t)=>{b.push({d:false,t});return `@@M${b.length-1}@@`;});
+  let h=marked.parse(src,{gfm:true});
+  h=h.replace(/@@M(\d+)@@/g,(m,i)=>{const x=b[i];try{return katex.renderToString(x.t,{displayMode:x.d,throwOnError:false});}catch(e){return '<code>'+x.t+'</code>';}});
+  return h;
 }
-
+function enhance(el,id){
+  el.querySelectorAll('a[href$=".md"]').forEach(a=>{try{const fn=decodeURIComponent(a.getAttribute('href'));const tm=byFile[fn];if(tm)a.addEventListener('click',e=>{e.preventDefault();location.hash='#'+tm.id;});}catch(_){}});
+  el.querySelectorAll('pre').forEach(pre=>{const btn=document.createElement('button');btn.className='copy';btn.textContent='复制';
+    btn.onclick=()=>{navigator.clipboard.writeText(pre.innerText.replace(/^复制\n?/,'')).then(()=>{btn.textContent='✓';setTimeout(()=>btn.textContent='复制',1200);});};pre.appendChild(btn);});
+  if(id){const btn=document.createElement('button');btn.className='readbtn'+(readSet.has(id)?' on':'');
+    btn.textContent=readSet.has(id)?'✓ 已标记为学过':'标记这块「已学过」';
+    btn.onclick=()=>{if(readSet.has(id)){readSet.delete(id);btn.classList.remove('on');btn.textContent='标记这块「已学过」';}else{readSet.add(id);btn.classList.add('on');btn.textContent='✓ 已标记为学过';}saveRead();};el.appendChild(btn);}
+  const idx=MODULES.findIndex(x=>x.id===id);
+  if(idx>=0){const pg=document.createElement('div');pg.className='pager';
+    pg.innerHTML=(idx>0?`<a href="#${MODULES[idx-1].id}">← ${MODULES[idx-1].title}</a>`:'<span style="flex:1"></span>')
+      +(idx<MODULES.length-1?`<a class="next" href="#${MODULES[idx+1].id}">${MODULES[idx+1].title} →</a>`:'<span style="flex:1"></span>');el.appendChild(pg);}
+}
+function buildTOC(el){
+  const toc=document.getElementById('toc');toc.innerHTML='';
+  const hs=[...el.querySelectorAll('h2,h3')];
+  if(hs.length<3){toc.innerHTML='';return;}
+  toc.innerHTML='<div class="ttl">本页目录</div>';
+  hs.forEach((h,i)=>{const id='h'+i;h.id=id;const a=document.createElement('a');a.href='#';a.textContent=h.textContent;
+    if(h.tagName==='H3')a.className='h3';a.onclick=e=>{e.preventDefault();h.scrollIntoView({behavior:'smooth'});};toc.appendChild(a);});
+  const links=[...toc.querySelectorAll('a')];
+  const spy=()=>{let cur=0;hs.forEach((h,i)=>{if(h.getBoundingClientRect().top<90)cur=i;});links.forEach((a,i)=>a.classList.toggle('cur',i===cur));};
+  window.onscroll=spy;spy();
+}
 async function load(id){
-  const m = MODULES.find(x=>x.id===id) || MODULES[0];
-  const el = document.getElementById('content');
+  const m=MODULES.find(x=>x.id===id)||MODULES[0];
+  const el=document.getElementById('content');document.getElementById('toc').innerHTML='';window.onscroll=null;
+  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.id===m.id));
+  closeSide();window.scrollTo(0,0);
+  if(m.type==='demos'){el.innerHTML='';buildDemos(el);return;}
   el.innerHTML='加载中…';
   try{
-    const res = await fetch(encodeURIComponent(m.file)+'?v='+Date.now());
-    if(!res.ok) throw new Error(res.status);
-    const txt = await res.text();
-    el.innerHTML = renderMD(txt);
-    // intercept internal .md links
-    el.querySelectorAll('a[href$=".md"]').forEach(a=>{
-      try{ const fn = decodeURIComponent(a.getAttribute('href')); const tm = byFile[fn];
-        if(tm){ a.addEventListener('click',e=>{e.preventDefault();location.hash='#'+tm.id;}); }
-      }catch(_){}
-    });
-    // read toggle
-    const btn=document.createElement('button');
-    btn.className='readbtn'+(readSet.has(id)?' on':'');
-    btn.textContent = readSet.has(id)?'✓ 已标记为学过':'标记这块「已学过」';
-    btn.onclick=()=>{ if(readSet.has(id)){readSet.delete(id);btn.classList.remove('on');btn.textContent='标记这块「已学过」';}
-      else{readSet.add(id);btn.classList.add('on');btn.textContent='✓ 已标记为学过';} saveRead(); };
-    el.appendChild(btn);
-    // pager
-    const idx=MODULES.findIndex(x=>x.id===id);
-    const pager=document.createElement('div'); pager.className='pager';
-    if(idx>0){const p=MODULES[idx-1];pager.innerHTML+=`<a href="#${p.id}">← ${p.title}</a>`;}else pager.innerHTML+='<span style="flex:1"></span>';
-    if(idx<MODULES.length-1){const n=MODULES[idx+1];pager.innerHTML+=`<a class="next" href="#${n.id}">${n.title} →</a>`;}else pager.innerHTML+='<span style="flex:1"></span>';
-    el.appendChild(pager);
-    document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.id===id));
-    window.scrollTo(0,0);
-    closeSide();
-  }catch(err){
-    el.innerHTML='<h2>加载失败</h2><p>无法加载 <code>'+m.file+'</code>（'+err.message+'）。<br>若在本地直接双击打开本文件，浏览器会因安全策略阻止读取 .md，请用本地服务器：<br><code>python3 -m http.server</code> 然后访问 localhost:8000。在 GitHub Pages 上则可正常加载。</p>';
-  }
+    const res=await fetch(encodeURIComponent(m.file)+'?v='+Date.now());if(!res.ok)throw new Error(res.status);
+    el.innerHTML=renderMD(await res.text());enhance(el,m.id);buildTOC(el);
+  }catch(err){el.innerHTML='<h2>加载失败</h2><p>无法加载 <code>'+m.file+'</code>（'+err.message+'）。本地直接打开会被浏览器拦截，请用 <code>python3 -m http.server</code> 或访问 GitHub Pages。</p>';}
 }
-
-function route(){ const id=(location.hash||'#start').slice(1); load(id); }
+function route(){load((location.hash||'#start').slice(1));}
 function openSide(){document.getElementById('side').classList.add('open');document.getElementById('scrim').classList.add('show');}
 function closeSide(){document.getElementById('side').classList.remove('open');document.getElementById('scrim').classList.remove('show');}
-
+/* ---- search ---- */
+let SIDX=null;
+async function buildIndex(){if(SIDX)return SIDX;SIDX=[];
+  await Promise.all(MODULES.filter(m=>m.file).map(async m=>{try{const r=await fetch(encodeURIComponent(m.file));if(r.ok)SIDX.push({m,txt:await r.text()});}catch(_){}}));return SIDX;}
+async function doSearch(q){
+  const box=document.getElementById('results');q=q.trim();
+  if(q.length<2){box.classList.remove('show');return;}
+  const idx=await buildIndex();const out=[];
+  idx.forEach(({m,txt})=>{const lo=txt.toLowerCase();let pos=lo.indexOf(q.toLowerCase());let n=0;
+    while(pos>=0&&n<2){const s=Math.max(0,pos-28),e=Math.min(txt.length,pos+q.length+34);
+      let snip=txt.slice(s,e).replace(/[#*`>|]/g,' ').replace(/\s+/g,' ').trim();
+      snip=snip.replace(new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),'ig'),x=>'<em>'+x+'</em>');
+      out.push({m,snip});pos=lo.indexOf(q.toLowerCase(),pos+1);n++;}});
+  if(!out.length){box.innerHTML='<div class="r"><small>没找到「'+q+'」</small></div>';box.classList.add('show');return;}
+  box.innerHTML=out.slice(0,12).map(o=>`<a class="r" href="#${o.m.id}"><b>${o.m.ic} ${o.m.title}</b><small>…${o.snip}…</small></a>`).join('');
+  box.classList.add('show');
+  box.querySelectorAll('a').forEach(a=>a.onclick=()=>{box.classList.remove('show');document.getElementById('q').value='';});
+}
+/* ---- interactive demos ---- */
+function numGrid(rows,cols,vals,cls){let h=`<div class="ngrid ${cls}" style="grid-template-columns:repeat(${cols},auto)">`;
+  for(let i=0;i<rows*cols;i++)h+=`<input type="number" step="any" value="${vals?vals[i]:0}">`;return h+'</div>';}
+function readNum(g){return [...g.querySelectorAll('input')].map(x=>parseFloat(x.value)||0);}
+function resGrid(rows,cols,arr,fmt,hotFn){let h=`<div class="resgrid" style="grid-template-columns:repeat(${cols},auto)">`;
+  for(let i=0;i<rows*cols;i++){const v=arr[i];h+=`<div class="c${hotFn&&hotFn(v,i)?' hot':''}">${fmt?fmt(v):v}</div>`;}return h+'</div>';}
+function buildDemos(root){
+  root.innerHTML=`<h1>🧮 互动演示 · 亲手算一遍</h1><p style="color:var(--muted)">改输入即出结果。把这些"按格子算"的题练成肌肉记忆，考试稳拿分。</p>`;
+  // 1 bilinear
+  const d1=document.createElement('div');d1.className='demo';
+  d1.innerHTML=`<h3>① 双线性插值</h3><p class="hint">4 个角值 + 小数位置 (dx 列、dy 行)。先左右插两次，再上下插一次。</p>
+   <div class="row"><div><div style="display:grid;grid-template-columns:auto auto;gap:6px;width:150px">
+   <label>左上<input id="b_tl" type="number" value="10"></label><label>右上<input id="b_tr" type="number" value="20"></label>
+   <label>左下<input id="b_bl" type="number" value="30"></label><label>右下<input id="b_br" type="number" value="60"></label></div>
+   <label style="margin-top:10px">dx(列) = <span id="b_dxv">0.7</span><input id="b_dx" type="range" min="0" max="1" step="0.05" value="0.7"></label>
+   <label>dy(行) = <span id="b_dyv">0.4</span><input id="b_dy" type="range" min="0" max="1" step="0.05" value="0.4"></label></div>
+   <div class="out" id="b_out" style="min-width:240px"></div></div>`;
+  root.appendChild(d1);
+  const bC=()=>{const tl=+d1.querySelector('#b_tl').value,tr=+d1.querySelector('#b_tr').value,bl=+d1.querySelector('#b_bl').value,br=+d1.querySelector('#b_br').value,
+    dx=+d1.querySelector('#b_dx').value,dy=+d1.querySelector('#b_dy').value;
+    d1.querySelector('#b_dxv').textContent=dx.toFixed(2);d1.querySelector('#b_dyv').textContent=dy.toFixed(2);
+    const top=tl*(1-dx)+tr*dx,bot=bl*(1-dx)+br*dx,v=top*(1-dy)+bot*dy;
+    const nn=[[tl,tr],[bl,br]][dy<0.5?0:1][dx<0.5?0:1];
+    d1.querySelector('#b_out').innerHTML=`上边: ${tl}·${(1-dx).toFixed(2)}+${tr}·${dx.toFixed(2)} = <b>${top.toFixed(2)}</b><br>下边: ${bl}·${(1-dx).toFixed(2)}+${br}·${dx.toFixed(2)} = <b>${bot.toFixed(2)}</b><br>上下: ${top.toFixed(2)}·${(1-dy).toFixed(2)}+${bot.toFixed(2)}·${dy.toFixed(2)} = <b style="font-size:18px">${v.toFixed(3)}</b><br><span style="color:var(--muted)">最近邻 = ${nn}</span>`;};
+  d1.querySelectorAll('input').forEach(i=>i.oninput=bC);bC();
+  // 2 morphology
+  const d2=document.createElement('div');d2.className='demo';
+  d2.innerHTML=`<h3>② 腐蚀 / 膨胀</h3><p class="hint">点格子切换前景(绿)。腐蚀=SE全中才留(瘦)，膨胀=有一个就亮(胖)。换 SE 看差异。</p>
+   <div class="row"><div><div style="font-size:12px;color:var(--muted);margin-bottom:5px">原图(点击编辑)</div><div id="m_grid"></div>
+   <div style="margin-top:10px">结构元素 SE：<button class="btn on" data-se="square">3×3 方块</button> <button class="btn" data-se="cross">十字</button></div>
+   <div style="margin-top:8px"><button class="btn" data-op="erode">腐蚀</button> <button class="btn" data-op="dilate">膨胀</button> <button class="btn" data-op="clear">清空</button></div></div>
+   <div><div style="font-size:12px;color:var(--muted);margin-bottom:5px" id="m_lbl">结果</div><div id="m_res"></div></div></div>`;
+  root.appendChild(d2);
+  const H=7,W=7;let M=Array.from({length:H},()=>Array(W).fill(0));
+  [[1,2],[1,3],[1,4],[2,2],[2,3],[2,4],[3,2],[3,3],[3,4],[3,5],[4,3],[4,4],[5,3]].forEach(([r,c])=>M[r][c]=1);
+  let SE='square';
+  const ses={square:[[-1,-1],[-1,0],[-1,1],[0,-1],[0,0],[0,1],[1,-1],[1,0],[1,1]],cross:[[-1,0],[0,-1],[0,0],[0,1],[1,0]]};
+  const drawM=()=>{const g=d2.querySelector('#m_grid');g.className='grid';g.style.gridTemplateColumns=`repeat(${W},auto)`;g.innerHTML='';
+    for(let r=0;r<H;r++)for(let c=0;c<W;c++){const cell=document.createElement('div');cell.className='cell'+(M[r][c]?' on':'');cell.onclick=()=>{M[r][c]^=1;drawM();};g.appendChild(cell);}};
+  const morph=(op)=>{const out=Array.from({length:H},()=>Array(W).fill(0));
+    for(let r=0;r<H;r++)for(let c=0;c<W;c++){if(op==='erode'){let ok=1;for(const[dr,dc]of ses[SE]){const rr=r+dr,cc=c+dc;if(rr<0||rr>=H||cc<0||cc>=W||!M[rr][cc]){ok=0;break;}}out[r][c]=ok;}
+      else{let v=0;for(const[dr,dc]of ses[SE]){const rr=r+dr,cc=c+dc;if(rr>=0&&rr<H&&cc>=0&&cc<W&&M[rr][cc]){v=1;break;}}out[r][c]=v;}}
+    d2.querySelector('#m_lbl').textContent=op==='erode'?'腐蚀结果':'膨胀结果';
+    const rg=d2.querySelector('#m_res');rg.className='resgrid';rg.style.gridTemplateColumns=`repeat(${W},auto)`;rg.innerHTML='';
+    for(let r=0;r<H;r++)for(let c=0;c<W;c++){const x=document.createElement('div');x.className='c'+(out[r][c]?' hot':'');rg.appendChild(x);}};
+  d2.querySelectorAll('[data-se]').forEach(b=>b.onclick=()=>{SE=b.dataset.se;d2.querySelectorAll('[data-se]').forEach(x=>x.classList.toggle('on',x===b));});
+  d2.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>{if(b.dataset.op==='clear'){M=Array.from({length:H},()=>Array(W).fill(0));drawM();d2.querySelector('#m_res').innerHTML='';d2.querySelector('#m_lbl').textContent='结果';}else morph(b.dataset.op);});
+  drawM();
+  // 3 integral image
+  const d3=document.createElement('div');d3.className='demo';
+  d3.innerHTML=`<h3>③ 积分图 Integral Image</h3><p class="hint">改左边的像素，右边实时算积分图 II = 本像素 + 上 + 左 − 左上。右下角=全图总和。任意矩形和 = D−B−C+A。</p>
+   <div class="row"><div><div style="font-size:12px;color:var(--muted);margin-bottom:5px">原图</div>${numGrid(4,4,[1,2,3,1,0,1,2,4,2,1,0,3,1,3,2,1],'i_in')}</div>
+   <div><div style="font-size:12px;color:var(--muted);margin-bottom:5px">积分图</div><div id="i_out"></div></div></div>`;
+  root.appendChild(d3);
+  const iC=()=>{const v=readNum(d3.querySelector('.i_in')),II=[];for(let i=0;i<4;i++){II[i]=[];for(let j=0;j<4;j++){let s=v[i*4+j];if(i>0)s+=II[i-1][j];if(j>0)s+=II[i][j-1];if(i>0&&j>0)s-=II[i-1][j-1];II[i][j]=s;}}
+    d3.querySelector('#i_out').innerHTML=resGrid(4,4,II.flat(),x=>Math.round(x*100)/100);};
+  d3.querySelectorAll('input').forEach(i=>i.oninput=iC);iC();
+  // 4 convolution
+  const d4=document.createElement('div');d4.className='demo';
+  d4.innerHTML=`<h3>④ 卷积 / 边缘检测</h3><p class="hint">改 5×5 输入，选掩膜，看 3×3 输出(按相关算 Gx=右−左)。左白右黑的竖直边会在边界出响应。</p>
+   <div style="margin-bottom:10px">掩膜：<select id="c_mask" class="btn"><option value="pgx">Prewitt Gx(竖直边)</option><option value="sgx">Sobel Gx</option><option value="sgy">Sobel Gy(水平边)</option><option value="lap">拉普拉斯</option><option value="mean">均值(模糊)</option></select></div>
+   <div class="row"><div><div style="font-size:12px;color:var(--muted);margin-bottom:5px">输入 5×5</div>${numGrid(5,5,[0,0,1,1,1,0,0,1,1,1,0,0,1,1,1,0,0,1,1,1,0,0,1,1,1],'c_in')}</div>
+   <div><div style="font-size:12px;color:var(--muted);margin-bottom:5px">输出 3×3</div><div id="c_out"></div></div></div>`;
+  root.appendChild(d4);
+  const masks={pgx:[[-1,0,1],[-1,0,1],[-1,0,1]],sgx:[[-1,0,1],[-2,0,2],[-1,0,1]],sgy:[[-1,-2,-1],[0,0,0],[1,2,1]],lap:[[0,1,0],[1,-4,1],[0,1,0]],mean:[[1/9,1/9,1/9],[1/9,1/9,1/9],[1/9,1/9,1/9]]};
+  const cC=()=>{const v=readNum(d4.querySelector('.c_in')),k=masks[d4.querySelector('#c_mask').value],out=[];
+    for(let r=1;r<4;r++)for(let c=1;c<4;c++){let s=0;for(let a=0;a<3;a++)for(let b=0;b<3;b++)s+=k[a][b]*v[(r+a-1)*5+(c+b-1)];out.push(Math.round(s*100)/100);}
+    d4.querySelector('#c_out').innerHTML=resGrid(3,3,out,x=>x,x=>x!==0);};
+  d4.querySelectorAll('input,select').forEach(i=>i.oninput=cC);cC();
+  // 5 pooling
+  const d5=document.createElement('div');d5.className='demo';
+  d5.innerHTML=`<h3>⑤ 池化 Pooling (stride 2)</h3><p class="hint">4×4 → 2×2。Max 取最大、Avg 取平均、Global 取全图平均。</p>
+   <div class="row"><div>${numGrid(4,4,[1,3,2,4,5,6,1,2,7,2,3,0,1,0,4,8],'p_in')}</div>
+   <div class="out" id="p_out" style="min-width:200px"></div></div>`;
+  root.appendChild(d5);
+  const pC=()=>{const v=readNum(d5.querySelector('.p_in')),g=(r,c)=>[v[r*4+c],v[r*4+c+1],v[(r+1)*4+c],v[(r+1)*4+c+1]],
+    mx=[[Math.max(...g(0,0)),Math.max(...g(0,2))],[Math.max(...g(2,0)),Math.max(...g(2,2))]],
+    av=[[g(0,0),g(0,2)],[g(2,0),g(2,2)]].map(r=>r.map(b=>b.reduce((s,x)=>s+x,0)/4)),
+    ga=v.reduce((s,x)=>s+x,0)/16;
+    d5.querySelector('#p_out').innerHTML=`MaxPool = <b>[[${mx[0]}],[${mx[1]}]]</b><br>AvgPool = <b>[[${av[0].map(x=>x.toFixed(2))}],[${av[1].map(x=>x.toFixed(2))}]]</b><br>GlobalAvg = <b style="font-size:17px">${ga.toFixed(4)}</b>`;};
+  d5.querySelectorAll('input').forEach(i=>i.oninput=pC);pC();
+  // 6 moments orientation
+  const d6=document.createElement('div');d6.className='demo';
+  d6.innerHTML=`<h3>⑥ 矩 · 物体方向角</h3><p class="hint">点格子放前景，自动算质心、a/b/c(b自带×2)、长轴角 θ=½·atan2(b,a−c)，并画出长轴(蓝线)。</p>
+   <div class="row"><div id="o_grid" style="position:relative"></div><div class="out" id="o_out" style="min-width:220px"></div></div>`;
+  root.appendChild(d6);
+  const N=8;let O=Array.from({length:N},()=>Array(N).fill(0));[[2,1],[2,2],[2,3],[2,4],[3,2]].forEach(([r,c])=>O[r][c]=1);
+  const oC=()=>{const pts=[];for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(O[r][c])pts.push([c,r]);
+    let html='';const cs=28;
+    html+=`<div class="grid" style="grid-template-columns:repeat(${N},auto)">`;
+    let tmp='';for(let r=0;r<N;r++)for(let c=0;c<N;c++)tmp+=`<div class="cell${O[r][c]?' on':''}" data-r="${r}" data-c="${c}"></div>`;
+    html+=tmp+'</div>';
+    const wrap=d6.querySelector('#o_grid');wrap.innerHTML=html;
+    wrap.querySelectorAll('.cell').forEach(cell=>cell.onclick=()=>{O[+cell.dataset.r][+cell.dataset.c]^=1;oC();});
+    const out=d6.querySelector('#o_out');
+    if(pts.length<2){out.innerHTML='放至少 2 个前景点';return;}
+    const xb=pts.reduce((s,p)=>s+p[0],0)/pts.length,yb=pts.reduce((s,p)=>s+p[1],0)/pts.length;
+    let a=0,c=0,sxy=0;pts.forEach(([x,y])=>{a+=(x-xb)**2;c+=(y-yb)**2;sxy+=(x-xb)*(y-yb);});const b=2*sxy;
+    const th=0.5*Math.atan2(b,a-c),thd=th*180/Math.PI;
+    // draw axis line over grid
+    const sz=N*cs+2*(N-1)+4;const cx=xb*(cs+2)+cs/2+2,cy=yb*(cs+2)+cs/2+2,L=sz;
+    const svg=`<svg style="position:absolute;left:0;top:0;pointer-events:none" width="${sz}" height="${sz}"><line x1="${cx-Math.cos(th)*L}" y1="${cy-Math.sin(th)*L}" x2="${cx+Math.cos(th)*L}" y2="${cy+Math.sin(th)*L}" stroke="#378ADD" stroke-width="2.5" stroke-dasharray="6 4"/><circle cx="${cx}" cy="${cy}" r="4" fill="#D4537E"/></svg>`;
+    wrap.insertAdjacentHTML('beforeend',svg);
+    out.innerHTML=`质心 (x̄,ȳ)=(<b>${xb.toFixed(2)}, ${yb.toFixed(2)}</b>)<br>a=Σx́²=<b>${a.toFixed(2)}</b>, c=Σý²=<b>${c.toFixed(2)}</b><br>b=2Σx́ý=<b>${b.toFixed(2)}</b><br>θ=½·atan2(${b.toFixed(1)},${(a-c).toFixed(1)}) = <b style="font-size:18px">${thd.toFixed(1)}°</b><br><span style="color:var(--muted)">蓝线=长轴方向</span>`;};
+  oC();
+  enhance(root,'demos');
+}
+/* ---- init ---- */
+applyTheme();applyFs();
 window.addEventListener('hashchange',route);
 window.addEventListener('DOMContentLoaded',()=>{
   buildNav();
   document.getElementById('hamb').onclick=openSide;
   document.getElementById('scrim').onclick=closeSide;
-  // katex may load after; wait a tick then route
-  const start=()=>route();
-  if(window.katex) start(); else setTimeout(start,200);
+  document.getElementById('theme').onclick=()=>{const cur=localStorage.getItem('ip_theme');const nx=cur==='dark'?'light':cur==='light'?'':'dark';if(nx)localStorage.setItem('ip_theme',nx);else localStorage.removeItem('ip_theme');applyTheme();};
+  document.getElementById('fsp').onclick=()=>{let s=Math.min(20,(parseInt(localStorage.getItem('ip_fs')||'16'))+1);localStorage.setItem('ip_fs',s);applyFs();};
+  document.getElementById('fsm').onclick=()=>{let s=Math.max(13,(parseInt(localStorage.getItem('ip_fs')||'16'))-1);localStorage.setItem('ip_fs',s);applyFs();};
+  let t;const q=document.getElementById('q');
+  q.oninput=()=>{clearTimeout(t);t=setTimeout(()=>doSearch(q.value),180);};
+  q.onfocus=()=>{if(q.value.trim().length>=2)doSearch(q.value);};
+  document.addEventListener('click',e=>{if(!e.target.closest('.search'))document.getElementById('results').classList.remove('show');});
+  buildIndex();/* 预建搜索索引，首次搜索即时 */
+  const go=()=>route();if(window.katex)go();else setTimeout(go,200);
 });
 </script>
 </body>
