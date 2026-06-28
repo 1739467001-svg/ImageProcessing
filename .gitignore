@@ -1,0 +1,11 @@
+# 源讲义材料（大文件 + 老师版权，不发布到 GitHub）
+*.pdf
+*.pptx
+*.zip
+
+# 系统/编辑器
+.DS_Store
+Thumbs.db
+
+# Claude Code 本地设置（含本机绝对路径的自动同步 hook，不入库）
+.claude/settings.local.json

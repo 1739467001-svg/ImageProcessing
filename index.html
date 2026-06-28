@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>图像处理 · 考试速成站</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" crossorigin="anonymous">
+<style>
+  :root{
+    --bg:#f7f7f4; --panel:#ffffff; --ink:#23221f; --muted:#6b6a64; --line:#e6e4dd;
+    --accent:#1d6e56; --accent2:#185fa5; --warn:#854f0b; --chip:#eef3ee; --code:#f1efe8;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#1a1a18; --panel:#232320; --ink:#ececea; --muted:#a3a29c; --line:#36352f;
+      --accent:#5dcaa5; --accent2:#85b7eb; --warn:#fac76f; --chip:#2a2a26; --code:#15150f; }
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.75;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent2);text-decoration:none}
+  a:hover{text-decoration:underline}
+  /* layout */
+  .wrap{display:flex;min-height:100vh}
+  .side{width:268px;flex:none;background:var(--panel);border-right:1px solid var(--line);
+    position:sticky;top:0;height:100vh;overflow-y:auto;padding:18px 14px}
+  .brand{font-size:17px;font-weight:600;padding:6px 10px 2px}
+  .brand small{display:block;font-size:12px;color:var(--muted);font-weight:400;margin-top:2px}
+  .nav{margin-top:14px;display:flex;flex-direction:column;gap:3px}
+  .nav a{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:9px;color:var(--ink);font-size:14.5px}
+  .nav a:hover{background:var(--chip);text-decoration:none}
+  .nav a.active{background:var(--chip);font-weight:600;box-shadow:inset 3px 0 0 var(--accent)}
+  .nav .ic{font-size:16px;width:20px;text-align:center}
+  .nav .ck{margin-left:auto;color:var(--accent);font-size:13px;opacity:0}
+  .nav a.read .ck{opacity:1}
+  .prog{margin:14px 10px 4px;font-size:12px;color:var(--muted)}
+  .bar{height:6px;background:var(--chip);border-radius:99px;overflow:hidden;margin:6px 10px}
+  .bar>i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
+  /* main */
+  .main{flex:1;min-width:0;display:flex;justify-content:center}
+  .content{max-width:840px;width:100%;padding:30px 30px 90px}
+  .topbar{display:none}
+  .md h1{font-size:25px;line-height:1.3;border-bottom:2px solid var(--line);padding-bottom:12px;margin-top:8px}
+  .md h2{font-size:20px;margin-top:34px;border-bottom:1px solid var(--line);padding-bottom:6px}
+  .md h3{font-size:17px;margin-top:26px}
+  .md p,.md li{font-size:15.5px}
+  .md blockquote{margin:14px 0;padding:8px 16px;border-left:4px solid var(--accent);
+    background:var(--chip);border-radius:0 8px 8px 0;color:var(--ink)}
+  .md blockquote p{margin:6px 0}
+  .md code{background:var(--code);padding:2px 6px;border-radius:5px;font-size:13.5px;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .md pre{background:var(--code);padding:14px 16px;border-radius:10px;overflow-x:auto;border:1px solid var(--line)}
+  .md pre code{background:none;padding:0;font-size:13px;line-height:1.5}
+  .md table{border-collapse:collapse;width:100%;margin:16px 0;font-size:14px;display:block;overflow-x:auto}
+  .md th,.md td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+  .md th{background:var(--chip);font-weight:600}
+  .md tr:nth-child(even) td{background:rgba(127,127,127,.04)}
+  .md hr{border:none;border-top:1px solid var(--line);margin:28px 0}
+  .md img{max-width:100%}
+  .katex-display{overflow-x:auto;overflow-y:hidden;padding:4px 0}
+  .pager{display:flex;justify-content:space-between;gap:12px;margin-top:40px;padding-top:20px;border-top:1px solid var(--line)}
+  .pager a{flex:1;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel);font-size:14px}
+  .pager a.next{text-align:right}
+  .readbtn{display:inline-flex;align-items:center;gap:8px;margin-top:24px;padding:9px 16px;border:1px solid var(--accent);
+    color:var(--accent);background:var(--panel);border-radius:10px;cursor:pointer;font-size:14px;font-family:inherit}
+  .readbtn.on{background:var(--accent);color:#fff}
+  .hamb{display:none}
+  @media (max-width:880px){
+    .side{position:fixed;left:0;top:0;z-index:30;transform:translateX(-100%);transition:transform .25s;box-shadow:0 0 40px rgba(0,0,0,.2)}
+    .side.open{transform:translateX(0)}
+    .topbar{display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:20;
+      background:var(--panel);border-bottom:1px solid var(--line);padding:11px 16px}
+    .hamb{display:inline-flex;font-size:22px;background:none;border:none;color:var(--ink);cursor:pointer;padding:2px 6px}
+    .topbar b{font-size:15px}
+    .content{padding:20px 18px 80px}
+    .scrim{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:25}
+    .scrim.show{display:block}
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <button class="hamb" id="hamb" aria-label="菜单">☰</button>
+  <b>图像处理 · 考试速成</b>
+</div>
+<div class="wrap">
+  <aside class="side" id="side">
+    <div class="brand">图像处理 · 考试速成<small>陈俊烨的备考站 · CV / Image Processing</small></div>
+    <div class="prog">学习进度 <span id="pct">0%</span></div>
+    <div class="bar"><i id="barfill"></i></div>
+    <nav class="nav" id="nav"></nav>
+  </aside>
+  <div class="scrim" id="scrim"></div>
+  <main class="main"><article class="content md" id="content">加载中…</article></main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js" crossorigin="anonymous"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js" crossorigin="anonymous"></script>
+<script>
+const MODULES = [
+  {id:'start',  file:'06_从这里开始_学习导航.md',     title:'从这里开始',        ic:'🚀'},
+  {id:'cheat',  file:'00_公式速记表_从零速成.md',     title:'公式速记表(从零速成)', ic:'📘'},
+  {id:'quiz',   file:'01_Quiz逐题详解.md',           title:'Quiz 逐题详解',      ic:'📝'},
+  {id:'drill',  file:'05_易混点突击题与概念精讲.md',   title:'易混点突击 + 概念精讲', ic:'⚡'},
+  {id:'extra',  file:'04_完整性补充_讲义额外考点.md',  title:'完整性补充(讲义额外)', ic:'📚'},
+  {id:'mock',   file:'02_模拟考卷.md',                title:'模拟考卷',           ic:'🧪'},
+  {id:'mockans',file:'03_模拟考卷_答案详解.md',        title:'模拟卷 · 答案详解',    ic:'✅'},
+];
+const byFile = {}; MODULES.forEach(m=>byFile[m.file]=m);
+const READ_KEY = 'ip_read_v1';
+const readSet = new Set(JSON.parse(localStorage.getItem(READ_KEY)||'[]'));
+
+function saveRead(){ localStorage.setItem(READ_KEY, JSON.stringify([...readSet])); refreshProgress(); }
+function refreshProgress(){
+  document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('read', readSet.has(a.dataset.id)));
+  const pct = Math.round(readSet.size/MODULES.length*100);
+  document.getElementById('pct').textContent = pct+'%';
+  document.getElementById('barfill').style.width = pct+'%';
+}
+
+function buildNav(){
+  const nav = document.getElementById('nav');
+  nav.innerHTML='';
+  MODULES.forEach(m=>{
+    const a=document.createElement('a');
+    a.href='#'+m.id; a.dataset.id=m.id;
+    a.innerHTML=`<span class="ic">${m.ic}</span><span>${m.title}</span><span class="ck">✓</span>`;
+    nav.appendChild(a);
+  });
+  refreshProgress();
+}
+
+// ---- markdown + math rendering (protect math from marked) ----
+function renderMD(src){
+  const blocks=[];
+  src = src.replace(/\$\$([\s\S]+?)\$\$/g,(m,t)=>{blocks.push({d:true,t});return `@@M${blocks.length-1}@@`;});
+  src = src.replace(/\$([^\$\n]+?)\$/g,(m,t)=>{blocks.push({d:false,t});return `@@M${blocks.length-1}@@`;});
+  let html = marked.parse(src,{gfm:true,breaks:false});
+  html = html.replace(/@@M(\d+)@@/g,(m,i)=>{
+    const b=blocks[i];
+    try{ return katex.renderToString(b.t,{displayMode:b.d,throwOnError:false}); }
+    catch(e){ return '<code>'+b.t+'</code>'; }
+  });
+  return html;
+}
+
+async function load(id){
+  const m = MODULES.find(x=>x.id===id) || MODULES[0];
+  const el = document.getElementById('content');
+  el.innerHTML='加载中…';
+  try{
+    const res = await fetch(encodeURIComponent(m.file)+'?v='+Date.now());
+    if(!res.ok) throw new Error(res.status);
+    const txt = await res.text();
+    el.innerHTML = renderMD(txt);
+    // intercept internal .md links
+    el.querySelectorAll('a[href$=".md"]').forEach(a=>{
+      try{ const fn = decodeURIComponent(a.getAttribute('href')); const tm = byFile[fn];
+        if(tm){ a.addEventListener('click',e=>{e.preventDefault();location.hash='#'+tm.id;}); }
+      }catch(_){}
+    });
+    // read toggle
+    const btn=document.createElement('button');
+    btn.className='readbtn'+(readSet.has(id)?' on':'');
+    btn.textContent = readSet.has(id)?'✓ 已标记为学过':'标记这块「已学过」';
+    btn.onclick=()=>{ if(readSet.has(id)){readSet.delete(id);btn.classList.remove('on');btn.textContent='标记这块「已学过」';}
+      else{readSet.add(id);btn.classList.add('on');btn.textContent='✓ 已标记为学过';} saveRead(); };
+    el.appendChild(btn);
+    // pager
+    const idx=MODULES.findIndex(x=>x.id===id);
+    const pager=document.createElement('div'); pager.className='pager';
+    if(idx>0){const p=MODULES[idx-1];pager.innerHTML+=`<a href="#${p.id}">← ${p.title}</a>`;}else pager.innerHTML+='<span style="flex:1"></span>';
+    if(idx<MODULES.length-1){const n=MODULES[idx+1];pager.innerHTML+=`<a class="next" href="#${n.id}">${n.title} →</a>`;}else pager.innerHTML+='<span style="flex:1"></span>';
+    el.appendChild(pager);
+    document.querySelectorAll('#nav a').forEach(a=>a.classList.toggle('active',a.dataset.id===id));
+    window.scrollTo(0,0);
+    closeSide();
+  }catch(err){
+    el.innerHTML='<h2>加载失败</h2><p>无法加载 <code>'+m.file+'</code>（'+err.message+'）。<br>若在本地直接双击打开本文件，浏览器会因安全策略阻止读取 .md，请用本地服务器：<br><code>python3 -m http.server</code> 然后访问 localhost:8000。在 GitHub Pages 上则可正常加载。</p>';
+  }
+}
+
+function route(){ const id=(location.hash||'#start').slice(1); load(id); }
+function openSide(){document.getElementById('side').classList.add('open');document.getElementById('scrim').classList.add('show');}
+function closeSide(){document.getElementById('side').classList.remove('open');document.getElementById('scrim').classList.remove('show');}
+
+window.addEventListener('hashchange',route);
+window.addEventListener('DOMContentLoaded',()=>{
+  buildNav();
+  document.getElementById('hamb').onclick=openSide;
+  document.getElementById('scrim').onclick=closeSide;
+  // katex may load after; wait a tick then route
+  const start=()=>route();
+  if(window.katex) start(); else setTimeout(start,200);
+});
+</script>
+</body>
+</html>
