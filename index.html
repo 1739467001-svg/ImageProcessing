@@ -157,6 +157,7 @@
 const MODULES=[
   {id:'start', file:'06_从这里开始_学习导航.md',    title:'从这里开始',         ic:'🚀'},
   {id:'exam',  file:'07_去年真题方向_英文作答.md',   title:'去年真题 + 英文作答',   ic:'🎯'},
+  {id:'fix',   file:'08_官方答案核对_修正清单.md',    title:'官方答案核对·修正清单',  ic:'✅'},
   {id:'cheat', file:'00_公式速记表_从零速成.md',    title:'公式速记表(从零速成)',  ic:'📘'},
   {id:'quiz',  file:'01_Quiz逐题详解.md',          title:'Quiz 逐题详解',       ic:'📝'},
   {id:'demos', type:'demos',                       title:'互动演示(亲手算)',     ic:'🧮'},
@@ -347,13 +348,13 @@ function buildDemos(root){
     const out=d6.querySelector('#o_out');
     if(pts.length<2){out.innerHTML='放至少 2 个前景点';return;}
     const xb=pts.reduce((s,p)=>s+p[0],0)/pts.length,yb=pts.reduce((s,p)=>s+p[1],0)/pts.length;
-    let a=0,c=0,sxy=0;pts.forEach(([x,y])=>{a+=(x-xb)**2;c+=(y-yb)**2;sxy+=(x-xb)*(y-yb);});const b=2*sxy;
+    let a=0,c=0,sxy=0;pts.forEach(([x,y])=>{a+=(x-xb)**2;c+=(y-yb)**2;sxy+=(x-xb)*(y-yb);});const b=sxy;
     const th=0.5*Math.atan2(b,a-c),thd=th*180/Math.PI;
     // draw axis line over grid
     const sz=N*cs+2*(N-1)+4;const cx=xb*(cs+2)+cs/2+2,cy=yb*(cs+2)+cs/2+2,L=sz;
     const svg=`<svg style="position:absolute;left:0;top:0;pointer-events:none" width="${sz}" height="${sz}"><line x1="${cx-Math.cos(th)*L}" y1="${cy-Math.sin(th)*L}" x2="${cx+Math.cos(th)*L}" y2="${cy+Math.sin(th)*L}" stroke="#378ADD" stroke-width="2.5" stroke-dasharray="6 4"/><circle cx="${cx}" cy="${cy}" r="4" fill="#D4537E"/></svg>`;
     wrap.insertAdjacentHTML('beforeend',svg);
-    out.innerHTML=`质心 (x̄,ȳ)=(<b>${xb.toFixed(2)}, ${yb.toFixed(2)}</b>)<br>a=Σx́²=<b>${a.toFixed(2)}</b>, c=Σý²=<b>${c.toFixed(2)}</b><br>b=2Σx́ý=<b>${b.toFixed(2)}</b><br>θ=½·atan2(${b.toFixed(1)},${(a-c).toFixed(1)}) = <b style="font-size:18px">${thd.toFixed(1)}°</b><br><span style="color:var(--muted)">蓝线=长轴方向</span>`;};
+    out.innerHTML=`质心 (x̄,ȳ)=(<b>${xb.toFixed(2)}, ${yb.toFixed(2)}</b>)<br>a=Σx́²=<b>${a.toFixed(2)}</b>, c=Σý²=<b>${c.toFixed(2)}</b><br>b=Σx́ý=<b>${b.toFixed(2)}</b><br>θ=½·atan2(${b.toFixed(1)},${(a-c).toFixed(1)}) = <b style="font-size:18px">${thd.toFixed(1)}°</b><br><span style="color:var(--muted)">蓝线=长轴方向</span>`;};
   oC();
   enhance(root,'demos');
 }
