@@ -9,3 +9,9 @@ Thumbs.db
 
 # Claude Code 本地配置/预览工具（含本机绝对路径，不入库）
 .claude/
+
+# 压缩包/答案归档(不发布)
+*.rar
+*.7z
+*.tar
+*.gz
